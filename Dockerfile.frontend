@@ -1,0 +1,26 @@
+##############################################################
+# House Price Prediction – Streamlit Frontend
+# Build:   docker build -f Dockerfile.frontend -t house-price-frontend .
+# Run:     docker run -p 8501:8501 -e API_BASE=http://localhost:8000 house-price-frontend
+##############################################################
+FROM python:3.11-slim
+
+RUN useradd --create-home --shell /bin/bash appuser
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY frontend/  ./frontend/
+COPY data/      ./data/
+COPY model/     ./model/
+COPY streamlit_app.py .
+
+ENV API_BASE=http://localhost:8000
+ENV PORT=8501
+EXPOSE $PORT
+
+USER appuser
+
+CMD streamlit run streamlit_app.py --server.port $PORT --server.address 0.0.0.0

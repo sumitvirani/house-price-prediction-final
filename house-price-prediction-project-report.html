@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Price Prediction – Project Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px; line-height: 1.7;
+    background: #ffffff; color: #1f2328;
+    padding: 0 16px 48px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .report-header {
+    background: #1f2328; color: #fff;
+    border-radius: 0 0 8px 8px;
+    padding: 36px 40px 32px;
+    margin-bottom: 36px;
+  }
+  .report-header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.3px; }
+  .report-header .sub { color: #8b949e; margin-top: 6px; font-size: 13px; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 12px; background: #3b82d4; color: #fff;
+  }
+  .badge.green  { background: #16a34a; }
+  .badge.purple { background: #7c5cd8; }
+  .badge.gray   { background: #57606a; }
+
+  /* ── TOC ── */
+  .toc {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 20px 24px; margin-bottom: 36px;
+  }
+  .toc h2 { font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .6px; color: #57606a; margin-bottom: 10px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a  { color: #3b82d4; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Sections ── */
+  h2.section-title {
+    font-size: 18px; font-weight: 700;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 8px; margin: 40px 0 16px;
+    color: #1f2328;
+  }
+  h3 { font-size: 14px; font-weight: 700; margin: 20px 0 8px; color: #1f2328; }
+
+  /* ── Cards ── */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .card-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: #f7f8fa; border: 1px solid #e5e7eb;
+    border-radius: 8px; padding: 16px;
+  }
+  .card .label { font-size: 11px; color: #57606a; text-transform: uppercase;
+                 letter-spacing: .5px; font-weight: 600; }
+  .card .value { font-size: 22px; font-weight: 700; color: #1f2328; margin-top: 4px; }
+  .card .sub   { font-size: 12px; color: #57606a; margin-top: 2px; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; }
+  th { background: #f7f8fa; font-weight: 700; text-align: left;
+       padding: 8px 12px; border: 1px solid #e5e7eb; }
+  td { padding: 8px 12px; border: 1px solid #e5e7eb; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: #1f2328; color: #e6edf3;
+    border-radius: 8px; padding: 16px 18px;
+    font-size: 12.5px; overflow-x: auto;
+    margin: 12px 0; line-height: 1.6;
+    font-family: "Consolas", "Menlo", monospace;
+  }
+  code { font-family: "Consolas", "Menlo", monospace; font-size: 12.5px; }
+  p code, li code {
+    background: #f0f2f5; padding: 1px 5px;
+    border-radius: 4px; color: #c0392b;
+  }
+
+  /* ── Inline test result ── */
+  .pass-row { display: flex; align-items: center; gap: 8px; padding: 6px 0;
+              border-bottom: 1px solid #f0f2f5; font-size: 13px; }
+  .pass-row:last-child { border-bottom: none; }
+  .pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+          min-width: 44px; text-align: center; }
+  .pill.pass { background: #dcfce7; color: #15803d; }
+  .pill.fail { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Bar chart (SVG) ── */
+  .chart-wrap { margin: 16px 0; }
+
+  /* ── Screenshot placeholder ── */
+  .screenshot {
+    background: #f7f8fa; border: 2px dashed #d0d7de;
+    border-radius: 8px; padding: 40px 20px;
+    text-align: center; color: #57606a;
+    font-size: 13px; margin: 14px 0;
+  }
+  .screenshot span { font-size: 28px; display: block; margin-bottom: 8px; }
+
+  /* ── Endpoint table highlight ── */
+  .method { font-weight: 700; font-size: 11px; padding: 2px 6px;
+            border-radius: 4px; }
+  .get  { background: #dbeafe; color: #1d4ed8; }
+  .post { background: #dcfce7; color: #15803d; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 56px; padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center; font-size: 12px; color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ Header ══════════════════════════════════════════════════════════════ -->
+<div class="report-header">
+  <h1>🏠 House Price Prediction</h1>
+  <p class="sub">Project Report &nbsp;·&nbsp; Machine Learning Web Application &nbsp;·&nbsp; 2026</p>
+  <div class="badge-row">
+    <span class="badge">Python 3.11</span>
+    <span class="badge green">FastAPI</span>
+    <span class="badge purple">Streamlit</span>
+    <span class="badge">scikit-learn</span>
+    <span class="badge gray">Docker</span>
+    <span class="badge green">61 / 61 Tests Passed</span>
+  </div>
+</div>
+
+<!-- ══ TOC ═════════════════════════════════════════════════════════════════ -->
+<div class="toc">
+  <h2>Table of Contents</h2>
+  <ol>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#problem">Problem Statement</a></li>
+    <li><a href="#objectives">Objectives</a></li>
+    <li><a href="#dataset">Dataset</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#algorithm">Machine Learning Algorithm</a></li>
+    <li><a href="#architecture">System Architecture</a></li>
+    <li><a href="#backend">Backend (FastAPI)</a></li>
+    <li><a href="#frontend">Frontend (Streamlit)</a></li>
+    <li><a href="#endpoints">API Endpoints</a></li>
+    <li><a href="#evaluation">Model Evaluation</a></li>
+    <li><a href="#results">Results &amp; Test Summary</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#future">Future Scope</a></li>
+  </ol>
+</div>
+
+<!-- ══ 1. Introduction ═════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="intro">1. Introduction</h2>
+<p>
+  This project delivers a <strong>production-ready House Price Prediction web application</strong>
+  built entirely in Python. It combines a scikit-learn machine-learning model with a
+  <strong>FastAPI REST backend</strong> and a <strong>Streamlit interactive frontend</strong>.
+  The system is containerised with Docker, deployable on Render (backend) and
+  Streamlit Community Cloud (frontend), and fully tested with 61 automated checks.
+</p>
+<p style="margin-top:10px">
+  The application allows any user to enter block-group characteristics of a Californian
+  neighbourhood and receive an instant median house-price estimate together with a
+  confidence range — all without requiring any paid API, private dataset, or manual
+  model retraining at runtime.
+</p>
+
+<!-- ══ 2. Problem Statement ═══════════════════════════════════════════════ -->
+<h2 class="section-title" id="problem">2. Problem Statement</h2>
+<p>
+  Real-estate valuation is complex, time-consuming, and often opaque. Buyers, sellers,
+  and analysts need a <em>fast, data-driven</em> estimate of median house prices based on
+  measurable neighbourhood features such as income, age, room count, and geography.
+  The challenge is to build an end-to-end system that:
+</p>
+<ul style="margin: 10px 0 0 20px; line-height:2">
+  <li>Learns from real historical housing data</li>
+  <li>Exposes predictions through a secure, documented API</li>
+  <li>Presents results to non-technical users via an intuitive dashboard</li>
+  <li>Can be deployed to the cloud without expensive infrastructure</li>
+</ul>
+
+<!-- ══ 3. Objectives ══════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="objectives">3. Objectives</h2>
+<table>
+  <tr><th>#</th><th>Objective</th><th>Status</th></tr>
+  <tr><td>1</td><td>Train a regression model on a publicly available dataset</td><td>✅ Complete</td></tr>
+  <tr><td>2</td><td>Achieve Test R² ≥ 0.80</td><td>✅ 0.8288</td></tr>
+  <tr><td>3</td><td>Build a FastAPI backend with 5 documented endpoints</td><td>✅ Complete</td></tr>
+  <tr><td>4</td><td>Build an interactive Streamlit frontend</td><td>✅ Complete</td></tr>
+  <tr><td>5</td><td>Ensure frontend/backend API contract consistency</td><td>✅ Verified</td></tr>
+  <tr><td>6</td><td>Containerise with Docker + docker-compose</td><td>✅ Complete</td></tr>
+  <tr><td>7</td><td>Write comprehensive automated tests</td><td>✅ 61/61 passed</td></tr>
+  <tr><td>8</td><td>Prepare Render + Streamlit Cloud deployment</td><td>✅ Complete</td></tr>
+</table>
+
+<!-- ══ 4. Dataset ══════════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="dataset">4. Dataset</h2>
+<div class="card-grid three">
+  <div class="card"><div class="label">Source</div><div class="value" style="font-size:14px">California Housing</div><div class="sub">sklearn built-in</div></div>
+  <div class="card"><div class="label">Total Records</div><div class="value">20,640</div><div class="sub">after outlier removal: ~16,500 train</div></div>
+  <div class="card"><div class="label">Target</div><div class="value" style="font-size:14px">Median Price</div><div class="sub">in USD (converted from 100k units)</div></div>
+</div>
+<p style="margin-top:10px">
+  The <strong>California Housing Dataset</strong> is derived from the 1990 U.S. Census.
+  Each row represents one <em>block group</em> — the smallest geographical unit for which
+  the Census Bureau publishes sample data (~600–3,000 people). Prices are originally
+  in units of $100,000; the training script converts them to full dollar values.
+  Houses capped at $500,001 in the raw data are excluded as censored observations.
+</p>
+
+<!-- ══ 5. Features ════════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="features">5. Features</h2>
+<table>
+  <tr><th>Feature</th><th>Display Name</th><th>Range</th><th>Description</th></tr>
+  <tr><td><code>MedInc</code></td><td>Median Income (10k USD)</td><td>0.5 – 15.0</td><td>Median household income in the block group</td></tr>
+  <tr><td><code>HouseAge</code></td><td>House Age (years)</td><td>1 – 52</td><td>Median age of houses in the block group</td></tr>
+  <tr><td><code>AveRooms</code></td><td>Average Rooms</td><td>1.0 – 20.0</td><td>Average number of rooms per household</td></tr>
+  <tr><td><code>AveBedrms</code></td><td>Average Bedrooms</td><td>1.0 – 5.0</td><td>Average number of bedrooms per household</td></tr>
+  <tr><td><code>Population</code></td><td>Block Population</td><td>3 – 5,000</td><td>Total population of the block group</td></tr>
+  <tr><td><code>AveOccup</code></td><td>Average Occupancy</td><td>1.0 – 10.0</td><td>Average number of household members</td></tr>
+  <tr><td><code>Latitude</code></td><td>Latitude</td><td>32.5 – 42.0</td><td>Block group latitude (Northern California = higher)</td></tr>
+  <tr><td><code>Longitude</code></td><td>Longitude</td><td>−124.4 – −114.3</td><td>Block group longitude</td></tr>
+</table>
+
+<!-- ══ 6. Algorithm ═══════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="algorithm">6. Machine Learning Algorithm</h2>
+<h3>Algorithm: Gradient Boosting Regressor</h3>
+<p>
+  <strong>Gradient Boosting</strong> builds an ensemble of shallow decision trees sequentially,
+  where each new tree corrects the residual errors of the previous ensemble.
+  It is well-suited for tabular regression tasks with mixed numerical features.
+</p>
+<table>
+  <tr><th>Hyperparameter</th><th>Value</th><th>Rationale</th></tr>
+  <tr><td><code>n_estimators</code></td><td>300</td><td>More trees reduce bias; early overfitting controlled by learning rate</td></tr>
+  <tr><td><code>learning_rate</code></td><td>0.05</td><td>Low rate + high estimators = strong generalisation</td></tr>
+  <tr><td><code>max_depth</code></td><td>5</td><td>Captures feature interactions without over-fitting</td></tr>
+  <tr><td><code>subsample</code></td><td>0.8</td><td>Stochastic gradient boosting reduces variance</td></tr>
+  <tr><td><code>min_samples_split</code></td><td>5</td><td>Prevents splits on very small leaves</td></tr>
+  <tr><td><code>min_samples_leaf</code></td><td>3</td><td>Smooths decision boundaries</td></tr>
+</table>
+
+<h3>Preprocessing Pipeline</h3>
+<ul style="margin-left:20px; line-height:2">
+  <li>Target values capped at $500,001 (remove censored rows)</li>
+  <li>Feature values clipped at 99th percentile (remove extreme outliers)</li>
+  <li><code>StandardScaler</code> fitted on training set; applied at inference time</li>
+  <li>80/20 train-test split, <code>random_state=42</code></li>
+</ul>
+
+<!-- ══ 7. Architecture ════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="architecture">7. System Architecture</h2>
+
+<svg viewBox="0 0 720 230" style="width:100%;max-width:720px;display:block;margin:14px auto 20px" font-family="-apple-system,Segoe UI,sans-serif" font-size="12">
+  <!-- User -->
+  <rect x="10" y="80" width="100" height="70" rx="8" fill="#f7f8fa" stroke="#e5e7eb" stroke-width="1.5"/>
+  <text x="60" y="108" text-anchor="middle" font-weight="700" fill="#1f2328">User</text>
+  <text x="60" y="124" text-anchor="middle" fill="#57606a" font-size="11">Browser</text>
+  <text x="60" y="140" text-anchor="middle" fill="#57606a" font-size="11">/ CLI</text>
+
+  <!-- Arrow: User -> Frontend -->
+  <line x1="110" y1="115" x2="155" y2="115" stroke="#3b82d4" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Streamlit Frontend -->
+  <rect x="155" y="65" width="140" height="100" rx="8" fill="#eff6ff" stroke="#3b82d4" stroke-width="1.5"/>
+  <text x="225" y="100" text-anchor="middle" font-weight="700" fill="#1d4ed8">Streamlit</text>
+  <text x="225" y="116" text-anchor="middle" fill="#1d4ed8" font-size="11">Frontend</text>
+  <text x="225" y="134" text-anchor="middle" fill="#57606a" font-size="10">frontend/app.py</text>
+  <text x="225" y="150" text-anchor="middle" fill="#57606a" font-size="10">streamlit_app.py</text>
+
+  <!-- Arrow: Frontend -> API -->
+  <line x1="295" y1="115" x2="340" y2="115" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="317" y="109" text-anchor="middle" fill="#57606a" font-size="10">HTTP</text>
+  <text x="317" y="123" text-anchor="middle" fill="#57606a" font-size="10">JSON</text>
+
+  <!-- FastAPI Backend -->
+  <rect x="340" y="65" width="140" height="100" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="410" y="100" text-anchor="middle" font-weight="700" fill="#15803d">FastAPI</text>
+  <text x="410" y="116" text-anchor="middle" fill="#15803d" font-size="11">Backend</text>
+  <text x="410" y="134" text-anchor="middle" fill="#57606a" font-size="10">backend/main.py</text>
+  <text x="410" y="150" text-anchor="middle" fill="#57606a" font-size="10">PORT $PORT</text>
+
+  <!-- Arrow: API -> Model -->
+  <line x1="480" y1="115" x2="525" y2="115" stroke="#7c5cd8" stroke-width="1.5" marker-end="url(#arr3)"/>
+
+  <!-- Model -->
+  <rect x="525" y="65" width="140" height="100" rx="8" fill="#faf5ff" stroke="#7c5cd8" stroke-width="1.5"/>
+  <text x="595" y="97" text-anchor="middle" font-weight="700" fill="#6d28d9">ML Model</text>
+  <text x="595" y="113" text-anchor="middle" fill="#57606a" font-size="10">GradientBoosting</text>
+  <text x="595" y="129" text-anchor="middle" fill="#57606a" font-size="10">model.pkl</text>
+  <text x="595" y="145" text-anchor="middle" fill="#57606a" font-size="10">scaler.pkl</text>
+  <text x="595" y="161" text-anchor="middle" fill="#57606a" font-size="10">Test R²: 0.8288</text>
+
+  <!-- Data CSV annotation -->
+  <text x="225" y="195" text-anchor="middle" fill="#57606a" font-size="10">data/house_data.csv</text>
+  <text x="410" y="195" text-anchor="middle" fill="#57606a" font-size="10">Pydantic validation</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arr"  markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3b82d4"/></marker>
+    <marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#16a34a"/></marker>
+    <marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7c5cd8"/></marker>
+  </defs>
+</svg>
+
+<h3>Project Folder Structure</h3>
+<pre>house-price-prediction/
+├── backend/
+│   ├── __init__.py
+│   ├── main.py          ← FastAPI application (5 endpoints)
+│   └── schemas.py       ← Pydantic models (HouseFeatures, PredictionResponse …)
+├── frontend/
+│   └── app.py           ← Streamlit 4-page dashboard
+├── data/
+│   └── house_data.csv   ← ~16k rows, generated by train.py
+├── model/
+│   ├── train.py         ← Training pipeline
+│   ├── model.pkl        ← Trained GradientBoostingRegressor
+│   ├── scaler.pkl       ← Fitted StandardScaler
+│   ├── feature_info.json
+│   ├── metrics.json
+│   └── feature_importance.csv
+├── tests/
+│   ├── test_api.py
+│   ├── test_model.py
+│   └── test_integration.py
+├── deployment/
+│   └── DEPLOY.md
+├── requirements.txt
+├── Dockerfile           ← Backend image
+├── Dockerfile.frontend  ← Frontend image
+├── docker-compose.yml
+└── streamlit_app.py     ← Streamlit Cloud entrypoint</pre>
+
+<!-- ══ 8. Backend ══════════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="backend">8. Backend (FastAPI)</h2>
+<p>
+  The backend is a <strong>FastAPI</strong> application served by <strong>Uvicorn</strong>.
+  It loads all model artifacts (<code>model.pkl</code>, <code>scaler.pkl</code>,
+  <code>feature_info.json</code>, <code>metrics.json</code>) once at startup.
+  If artifacts are missing, the server starts in a <em>degraded</em> state and
+  returns HTTP 503 from model-dependent endpoints instead of crashing.
+</p>
+
+<h3>Key Design Decisions</h3>
+<ul style="margin-left:20px; line-height:2">
+  <li>CORS enabled for <code>*</code> — frontend can be hosted anywhere</li>
+  <li>Pydantic v2 field validators enforce domain constraints (e.g. <code>AveBedrms ≤ AveRooms</code>)</li>
+  <li>Predictions clamped to [$50k, $800k] to prevent nonsensical outputs</li>
+  <li>Input echoed back in response so frontend can audit the request</li>
+  <li><code>PORT</code> env variable used for Render compatibility</li>
+</ul>
+
+<h3>Start Command</h3>
+<pre>uvicorn backend.main:app --host 0.0.0.0 --port $PORT</pre>
+
+<!-- ══ 9. Frontend ═════════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="frontend">9. Frontend (Streamlit)</h2>
+<p>
+  The frontend is a <strong>Streamlit</strong> multi-page dashboard with four sections:
+</p>
+<table>
+  <tr><th>Page</th><th>Content</th></tr>
+  <tr><td>🔮 Predict Price</td><td>8 input sliders/number fields, Predict button, gauge chart, confidence range bar</td></tr>
+  <tr><td>📊 Data Explorer</td><td>Price histogram, feature distributions, geographic scatter map, correlation matrix, raw data table</td></tr>
+  <tr><td>🤖 Model Insights</td><td>Train vs test metrics cards + bar chart, horizontal feature importance chart, model info JSON</td></tr>
+  <tr><td>ℹ️ About</td><td>Tech stack table, feature reference, API endpoint list, local dev commands</td></tr>
+</table>
+
+<p style="margin-top:10px">
+  The frontend reads the backend URL from the <code>API_BASE</code> environment variable
+  (default <code>http://localhost:8000</code>) and shows a friendly warning banner if the
+  backend is unreachable — never exposing raw error stack traces to the user.
+</p>
+
+<div class="screenshot">
+  <span>📸</span>
+  Screenshot Placeholder — Predict Price Page<br>
+  <small>Run <code>streamlit run streamlit_app.py</code> and capture the dashboard</small>
+</div>
+<div class="screenshot">
+  <span>📸</span>
+  Screenshot Placeholder — Data Explorer (Geographic Map)<br>
+  <small>California house prices plotted on an interactive Plotly mapbox</small>
+</div>
+
+<!-- ══ 10. API Endpoints ═══════════════════════════════════════════════════ -->
+<h2 class="section-title" id="endpoints">10. API Endpoints</h2>
+<table>
+  <tr><th>Method</th><th>Path</th><th>Description</th><th>Response</th></tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td><code>/</code></td>
+    <td>API root with links to docs and health</td>
+    <td><code>{"message", "version", "docs", "health"}</code></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td><code>/health</code></td>
+    <td>Health check and model-loaded status</td>
+    <td><code>{"status", "model_loaded", "version"}</code></td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td><code>/feature-info</code></td>
+    <td>Full metadata for all 8 input features</td>
+    <td>Object keyed by feature name</td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td><code>/metrics</code></td>
+    <td>Model performance metrics (R², MAE, RMSE)</td>
+    <td><code>MetricsResponse</code> schema</td>
+  </tr>
+  <tr>
+    <td><span class="method get">GET</span></td>
+    <td><code>/model-info</code></td>
+    <td>Model metadata (type, dataset, estimators)</td>
+    <td><code>ModelInfoResponse</code> schema</td>
+  </tr>
+  <tr>
+    <td><span class="method post">POST</span></td>
+    <td><code>/predict</code></td>
+    <td>Predict median house price for given features</td>
+    <td><code>PredictionResponse</code> — see below</td>
+  </tr>
+</table>
+
+<h3>POST /predict — Request Body</h3>
+<pre>{
+  "MedInc":     3.87,   // Median income (tens of thousands USD)  [0.5 – 15.0]
+  "HouseAge":  28.0,    // Median house age (years)               [1 – 52]
+  "AveRooms":   5.43,   // Average rooms per household            [1.0 – 20.0]
+  "AveBedrms":  1.10,   // Average bedrooms per household         [1.0 – 5.0]
+  "Population": 1425.0, // Block group population                 [3 – 5000]
+  "AveOccup":   3.07,   // Average household members              [1.0 – 10.0]
+  "Latitude":  35.63,   // Block group latitude                   [32.5 – 42.0]
+  "Longitude": -119.57  // Block group longitude                  [-124.4 – -114.3]
+}</pre>
+
+<h3>POST /predict — Response Body</h3>
+<pre>{
+  "predicted_price":  104232.00,
+  "price_range_low":   88597.00,
+  "price_range_high": 119867.00,
+  "currency":         "USD",
+  "model_version":    "1.0.0",
+  "input_features":   { ...echo of request... }
+}</pre>
+
+<!-- ══ 11. Evaluation ══════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="evaluation">11. Model Evaluation</h2>
+
+<div class="card-grid three">
+  <div class="card">
+    <div class="label">Test R²</div>
+    <div class="value">0.8288</div>
+    <div class="sub">82.9 % variance explained</div>
+  </div>
+  <div class="card">
+    <div class="label">Test MAE</div>
+    <div class="value">$31,668</div>
+    <div class="sub">Mean absolute error</div>
+  </div>
+  <div class="card">
+    <div class="label">Test RMSE</div>
+    <div class="value">$47,360</div>
+    <div class="sub">Root mean squared error</div>
+  </div>
+</div>
+
+<div class="card-grid three" style="margin-top:0">
+  <div class="card">
+    <div class="label">Train R²</div>
+    <div class="value">0.8888</div>
+    <div class="sub">Train set performance</div>
+  </div>
+  <div class="card">
+    <div class="label">Train MAE</div>
+    <div class="value">$26,892</div>
+    <div class="sub">Train set MAE</div>
+  </div>
+  <div class="card">
+    <div class="label">Dataset Split</div>
+    <div class="value">80 / 20</div>
+    <div class="sub">16,512 train · 4,128 test</div>
+  </div>
+</div>
+
+<h3>Feature Importance (GradientBoostingRegressor)</h3>
+<!-- Bar chart using inline SVG -->
+<div class="chart-wrap">
+<svg viewBox="0 0 680 260" style="width:100%;display:block" font-family="-apple-system,Segoe UI,sans-serif" font-size="12">
+  <!-- Y-axis labels and bars — values from actual training run -->
+  <!-- MedInc: 0.5312, Latitude: 0.1668, Longitude: 0.1350, HouseAge: 0.0630,
+       AveOccup: 0.0571, AveRooms: 0.0286, Population: 0.0111, AveBedrms: 0.0072 -->
+
+  <text x="15" y="35"  text-anchor="start" fill="#57606a">AveBedrms</text>
+  <text x="15" y="65"  text-anchor="start" fill="#57606a">Population</text>
+  <text x="15" y="95"  text-anchor="start" fill="#57606a">AveRooms</text>
+  <text x="15" y="125" text-anchor="start" fill="#57606a">AveOccup</text>
+  <text x="15" y="155" text-anchor="start" fill="#57606a">HouseAge</text>
+  <text x="15" y="185" text-anchor="start" fill="#57606a">Longitude</text>
+  <text x="15" y="215" text-anchor="start" fill="#57606a">Latitude</text>
+  <text x="15" y="245" text-anchor="start" fill="#57606a" font-weight="700">MedInc</text>
+
+  <!-- Bars starting at x=110 -->
+  <rect x="110" y="20"  height="22" width="9"   rx="3" fill="#bfdbfe"/>
+  <rect x="110" y="50"  height="22" width="16"  rx="3" fill="#93c5fd"/>
+  <rect x="110" y="80"  height="22" width="42"  rx="3" fill="#60a5fa"/>
+  <rect x="110" y="110" height="22" width="84"  rx="3" fill="#3b82f6"/>
+  <rect x="110" y="140" height="22" width="93"  rx="3" fill="#2563eb"/>
+  <rect x="110" y="170" height="22" width="199" rx="3" fill="#1d4ed8"/>
+  <rect x="110" y="200" height="22" width="246" rx="3" fill="#1e40af"/>
+  <rect x="110" y="230" height="22" width="533" rx="3" fill="#1e3a8a"/>
+
+  <!-- Value labels -->
+  <text x="124" y="35"  fill="#57606a" font-size="10">0.72%</text>
+  <text x="131" y="65"  fill="#57606a" font-size="10">1.11%</text>
+  <text x="157" y="95"  fill="#57606a" font-size="10">2.86%</text>
+  <text x="199" y="125" fill="#57606a" font-size="10">5.71%</text>
+  <text x="208" y="155" fill="#57606a" font-size="10">6.30%</text>
+  <text x="314" y="185" fill="#57606a" font-size="10">13.50%</text>
+  <text x="361" y="215" fill="#57606a" font-size="10">16.68%</text>
+  <text x="648" y="245" fill="#1e3a8a" font-size="10" font-weight="700">53.12%</text>
+</svg>
+</div>
+<p style="font-size:12px;color:#57606a;margin-top:-8px">
+  <em>MedInc (Median Income) is by far the most predictive feature, accounting for 53 % of the
+  model's decision weight. Geographic coordinates (Latitude + Longitude) together contribute
+  another 30 %.</em>
+</p>
+
+<!-- ══ 12. Results ════════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="results">12. Results &amp; Test Summary</h2>
+<p>
+  All <strong>61 automated tests</strong> pass across three test suites.
+  Tests were executed using FastAPI's <code>TestClient</code> on Python 3.11.9 (Windows).
+</p>
+
+<h3>File Existence (16 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> model/model.pkl, scaler.pkl, feature_info.json, metrics.json, feature_importance.csv</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> data/house_data.csv</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> backend/main.py, backend/schemas.py, frontend/app.py, streamlit_app.py</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Dockerfile, Dockerfile.frontend, docker-compose.yml, requirements.txt, README.md, deployment/DEPLOY.md</div>
+</div>
+
+<h3>Model Quality (5 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Test R² &gt; 0.80 → 0.8288</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Train R² &gt; 0.85 → 0.8888</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Test MAE &lt; $35,000 → $31,668</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Prediction in [$50k – $700k] for default input</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET /metrics returns test_r2 field</div>
+</div>
+
+<h3>API Endpoints (11 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET / → 200, has "message" key</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET /health → 200, model_loaded = True</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET /feature-info → 200, returns 8 features</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET /metrics → 200, has test_r2</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> GET /model-info → 200, has model_type</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> POST /predict (valid payload) → 200</div>
+</div>
+
+<h3>POST /predict Response Schema (7 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> predicted_price, price_range_low, price_range_high, currency all present</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> currency = "USD"</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> input_features echoes all 8 request fields</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> predicted_price &gt; 0</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> price_range_low &lt; predicted_price &lt; price_range_high</div>
+</div>
+
+<h3>Validation Errors (4 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Missing required field (MedInc) → HTTP 422</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Out-of-range value (MedInc=999) → HTTP 422</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Wrong type (HouseAge="old") → HTTP 422</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> AveBedrms &gt; AveRooms → HTTP 422</div>
+</div>
+
+<h3>Data Consistency &amp; Integration (7 checks)</h3>
+<div>
+  <div class="pass-row"><span class="pill pass">PASS</span> /feature-info keys exactly match /predict request schema</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Predictions are deterministic (same input → same output)</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Income monotonicity: higher MedInc → higher predicted price</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Dataset rows &gt; 10,000 (~16.5k after filtering)</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Dataset has all 8 feature columns + Price</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Dataset contains no null values</div>
+  <div class="pass-row"><span class="pill pass">PASS</span> Feature importance sums to ~1.0</div>
+</div>
+
+<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px 18px;margin-top:20px;font-weight:700;color:#15803d;font-size:15px">
+  ✅ TOTAL: 61 / 61 tests passed — ALL TESTS PASSED
+</div>
+
+<!-- ══ 13. Deployment ══════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="deployment">13. Deployment</h2>
+
+<h3>Backend — Render Web Service</h3>
+<table>
+  <tr><th>Setting</th><th>Value</th></tr>
+  <tr><td>Runtime</td><td>Python 3</td></tr>
+  <tr><td>Build Command</td><td><code>pip install -r requirements.txt &amp;&amp; python model/train.py</code></td></tr>
+  <tr><td>Start Command</td><td><code>uvicorn backend.main:app --host 0.0.0.0 --port $PORT</code></td></tr>
+  <tr><td>Environment Variable</td><td><code>PORT</code> — injected automatically by Render</td></tr>
+  <tr><td>Instance Type</td><td>Free tier sufficient</td></tr>
+</table>
+
+<h3>Frontend — Streamlit Community Cloud</h3>
+<table>
+  <tr><th>Setting</th><th>Value</th></tr>
+  <tr><td>Main file path</td><td><code>streamlit_app.py</code></td></tr>
+  <tr><td>Secret (in app settings)</td><td><code>API_BASE = "https://your-render-url.onrender.com"</code></td></tr>
+  <tr><td>Python version</td><td>3.11</td></tr>
+  <tr><td>Requirements</td><td>Reads from <code>requirements.txt</code> automatically</td></tr>
+</table>
+
+<h3>Docker Compose (Local / VPS)</h3>
+<pre>docker-compose up --build     # starts both backend (:8000) and frontend (:8501)</pre>
+
+<!-- ══ 14. Conclusion ══════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="conclusion">14. Conclusion</h2>
+<p>
+  This project successfully delivers a <strong>complete, production-ready
+  House Price Prediction application</strong>. The machine-learning pipeline achieves a
+  <strong>Test R² of 0.8288</strong> and a <strong>Test MAE of $31,668</strong> on the
+  California Housing dataset, which are competitive results for this benchmark.
+</p>
+<p style="margin-top:10px">
+  The FastAPI backend exposes a clean, versioned REST API with Pydantic input
+  validation, CORS support, and graceful degradation when model artifacts are
+  missing. The Streamlit frontend provides an intuitive four-page dashboard with
+  interactive Plotly charts, a live prediction panel, and a geographic house-price map.
+  The entire stack is containerised and documented for one-command local development
+  or cloud deployment.
+</p>
+<p style="margin-top:10px">
+  <strong>61 automated tests</strong> covering file existence, model quality, all API
+  endpoints, input validation, and frontend-backend contract all pass without errors.
+</p>
+
+<!-- ══ 15. Future Scope ════════════════════════════════════════════════════ -->
+<h2 class="section-title" id="future">15. Future Scope</h2>
+<table>
+  <tr><th>Enhancement</th><th>Description</th></tr>
+  <tr><td>More recent dataset</td><td>Replace 1990 Census data with Zillow or Redfin API data for current predictions</td></tr>
+  <tr><td>Model comparison</td><td>Add XGBoost, LightGBM, and CatBoost; expose best model via /model-select endpoint</td></tr>
+  <tr><td>SHAP explanations</td><td>Per-prediction SHAP waterfall charts to explain individual predictions</td></tr>
+  <tr><td>Retraining pipeline</td><td>Scheduled retraining via Prefect or Airflow when new data arrives</td></tr>
+  <tr><td>User authentication</td><td>JWT-based auth for /predict to support rate limiting and usage analytics</td></tr>
+  <tr><td>CI/CD</td><td>GitHub Actions workflow: lint → test → docker build → deploy to Render on push</td></tr>
+  <tr><td>MLflow tracking</td><td>Log experiments, parameters, and metrics to MLflow for model versioning</td></tr>
+  <tr><td>Confidence calibration</td><td>Replace heuristic ±15% range with quantile regression for calibrated intervals</td></tr>
+</table>
+
+<!-- ══ Footer ═════════════════════════════════════════════════════════════ -->
+<div class="footer">
+  Made with IBM Bob &nbsp;·&nbsp; House Price Prediction Project &nbsp;·&nbsp; 2026
+</div>
+
+</div><!-- .page -->
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "train_r2": 0.8887852892819329,
+  "test_r2": 0.8288377820388771,
+  "train_mae": 26892.41634689985,
+  "test_mae": 31668.126697548647,
+  "train_rmse": 38557.671366198476,
+  "test_rmse": 47359.52989123532,
+  "n_train": 16512,
+  "n_test": 4128,
+  "model_type": "GradientBoostingRegressor",
+  "feature_names": [
+    "MedInc",
+    "HouseAge",
+    "AveRooms",
+    "AveBedrms",
+    "Population",
+    "AveOccup",
+    "Latitude",
+    "Longitude"
+  ],
+  "dataset": "California Housing (sklearn)"
+}
